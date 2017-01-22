@@ -366,7 +366,8 @@ public class Config {
                     ImageParams.CompressionLevel.VERY_HIGH,
                     ImageParams.CompressionLevel.HIGH,
                     ImageParams.CompressionLevel.MEDIUM,
-                    ImageParams.CompressionLevel.LOW,
+                    ImageParams.CompressionLevel.LOW_80,
+                    ImageParams.CompressionLevel.VERY_LOW_92,
                     ImageParams.CompressionLevel.NONE,
             };
             ArrayAdapter<ImageParams.CompressionLevel> adapter_compression =

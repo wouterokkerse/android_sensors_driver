@@ -205,7 +205,7 @@ public class CameraPublisher implements NodeMain, CvCameraViewListener2 {
                     // Proccess per type
                     switch (viewMode) {
                         case RGBA:
-                            cvImage = new CvImage(rawImage.getHeader(), ImageEncodings.RGB8, frameToSend);
+                            cvImage = new CvImage(rawImage.getHeader(), ImageEncodings.BGR8, frameToSend);
                             break;
                         case GRAY:
                         case CANNY:

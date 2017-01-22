@@ -15,7 +15,8 @@ public class ImageParams {
 
     public enum CompressionLevel {
         NONE(100),
-        LOW(80),
+        VERY_LOW_92(92),
+        LOW_80(80),
         MEDIUM(50),
         HIGH(25),
         VERY_HIGH(10);
