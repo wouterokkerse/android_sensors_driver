@@ -11,6 +11,8 @@ import android.widget.StackView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
+import android.util.Log;
+import android.os.Environment;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -20,15 +22,21 @@ import org.opencv.android.OpenCVLoader;
 import org.ros.android.android_sensors_driver.MainActivity;
 import org.ros.android.android_sensors_driver.R;
 import org.ros.android.android_sensors_driver.publishers.images2.ImageParams;
+import org.ros.android.android_sensors_driver.publishers.images.SensorCameraView;
 import org.ros.namespace.GraphName;
 import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
 import org.ros.node.NodeMain;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CameraManager  implements NodeMain {
 
+    private static final String TAG = "Android_Sensors_Driver::CameraManager";
     private ArrayList<CameraBridgeViewBase> mViewList;
     private ArrayList<CameraPublisher> mNodes;
     private ArrayList<Integer> camera_ids;
@@ -139,7 +147,7 @@ public class CameraManager  implements NodeMain {
             // Create and set views
             for(int i=0; i<camera_ids.size(); i++) {
                 // Create a new camera node
-                JavaCameraView mOpenCvCameraView = new JavaCameraView(mainActivity, camera_ids.get(i));
+                final SensorCameraView mOpenCvCameraView = new SensorCameraView(mainActivity, camera_ids.get(i));
                 CameraPublisher pub = new CameraPublisher(camera_ids.get(i), robotName, cameras_viewmode.get(i), cameras_compression.get(i));
                 mOpenCvCameraView.enableView();
                 mOpenCvCameraView.enableFpsMeter();
@@ -148,6 +156,23 @@ public class CameraManager  implements NodeMain {
                 mNodes.add(pub);
                 // Start the node
                 pub.onStart(node);
+
+                // timer to take picutres
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask()
+                {
+                    @Override
+                    public void run()
+                    {
+                        Log.i(TAG,"onTouch event");
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+                        String currentDateandTime = sdf.format(new Date());
+                        String fileName = Environment.getExternalStorageDirectory().getPath() +
+                                "/sample_picture_" + currentDateandTime + ".jpg";
+                        mOpenCvCameraView.takePicture(fileName);
+                        Log.i(TAG, fileName + " saved");
+                    }
+                }, 0, 5000);
             }
             // Add the camera views
             mainActivity.runOnUiThread(new Runnable() {
