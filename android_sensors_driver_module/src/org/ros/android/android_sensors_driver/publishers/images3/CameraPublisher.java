@@ -130,6 +130,9 @@ public class CameraPublisher implements NodeMain, CvCameraViewListener2 {
 
     @Override
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
+        if(true) {
+            return inputFrame.rgba();
+        }
 
         Mat         frame       = null;
         Mat         frameToSend = new Mat();
@@ -233,5 +236,28 @@ public class CameraPublisher implements NodeMain, CvCameraViewListener2 {
             }
         }
         return frame;
+    }
+
+    public void onPictureTaken(byte[] data) {
+        ChannelBufferOutputStream stream = new ChannelBufferOutputStream(MessageBuffers.dynamicBuffer());
+
+        // Lets try publishing our messages
+        try {
+            //Compressed image
+            CompressedImage image = imagePublisher.newMessage();
+
+            Time currentTime = node.getCurrentTime();
+            image.getHeader().setStamp(currentTime);
+            image.getHeader().setFrameId("camera");
+
+            image.setFormat("jpeg");
+            stream.write(data);
+            image.setData(stream.buffer().copy());
+            imagePublisher.publish(image);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }

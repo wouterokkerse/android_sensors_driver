@@ -37,7 +37,7 @@ import java.util.Date;
 public class CameraManager  implements NodeMain {
 
     private static final String TAG = "Android_Sensors_Driver::CameraManager";
-    private ArrayList<CameraBridgeViewBase> mViewList;
+    private ArrayList<SensorCameraView> mViewList;
     private ArrayList<CameraPublisher> mNodes;
     private ArrayList<Integer> camera_ids;
     private ArrayList<ImageParams.ViewMode> cameras_viewmode;
@@ -71,7 +71,7 @@ public class CameraManager  implements NodeMain {
     @Override
     public void onStart(ConnectedNode connectedNode) {
         this.node = connectedNode;
-        this.mViewList = new ArrayList<CameraBridgeViewBase>();
+        this.mViewList = new ArrayList<SensorCameraView>();
         this.mNodes = new ArrayList<CameraPublisher>();
         // See if we can load opencv
         try {
@@ -147,32 +147,17 @@ public class CameraManager  implements NodeMain {
             // Create and set views
             for(int i=0; i<camera_ids.size(); i++) {
                 // Create a new camera node
-                final SensorCameraView mOpenCvCameraView = new SensorCameraView(mainActivity, camera_ids.get(i));
+                SensorCameraView mOpenCvCameraView = new SensorCameraView(mainActivity, camera_ids.get(i));
                 CameraPublisher pub = new CameraPublisher(camera_ids.get(i), robotName, cameras_viewmode.get(i), cameras_compression.get(i));
                 mOpenCvCameraView.enableView();
                 mOpenCvCameraView.enableFpsMeter();
                 mOpenCvCameraView.setCvCameraViewListener(pub);
+                mOpenCvCameraView.setCameraPictureListener(pub);
                 mViewList.add(mOpenCvCameraView);
                 mNodes.add(pub);
                 // Start the node
                 pub.onStart(node);
 
-                // timer to take picutres
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask()
-                {
-                    @Override
-                    public void run()
-                    {
-                        Log.i(TAG,"onTouch event");
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-                        String currentDateandTime = sdf.format(new Date());
-                        String fileName = Environment.getExternalStorageDirectory().getPath() +
-                                "/sample_picture_" + currentDateandTime + ".jpg";
-                        mOpenCvCameraView.takePicture(fileName);
-                        Log.i(TAG, fileName + " saved");
-                    }
-                }, 0, 5000);
             }
             // Add the camera views
             mainActivity.runOnUiThread(new Runnable() {
@@ -183,6 +168,36 @@ public class CameraManager  implements NodeMain {
                     }
                 }
             });
+
+            // timer to take picutres
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (int i = 0; i < mViewList.size(); i++) {
+                                SensorCameraView mOpenCvCameraView = mViewList.get(i);
+                                Log.i(TAG, "timer event event for i: "+i);
+                                mOpenCvCameraView.setupParameters();
+                                //mOpenCvCameraView.cameraPictureResolutions();
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+                                String currentDateandTime = sdf.format(new Date());
+                                String fileName = Environment.getExternalStorageDirectory().getPath() +
+                                        "/sample_picture_" + currentDateandTime + ".jpg";
+                                mOpenCvCameraView.takePicture(fileName);
+                                Log.i(TAG, fileName + " saved");
+                                Toast toast = Toast.makeText(mainActivity, "Took picture, stored on sd card", Toast.LENGTH_SHORT);
+                                toast.show();
+                                break;
+                            }
+                        }
+                    });
+                }
+            }, 0, 5000);
         }
     };
 }

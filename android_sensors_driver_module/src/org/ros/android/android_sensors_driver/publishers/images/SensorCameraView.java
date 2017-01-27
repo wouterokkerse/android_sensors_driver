@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.util.List;
 
 import org.opencv.android.JavaCameraView;
+import org.ros.android.android_sensors_driver.publishers.images3.CameraPublisher;
 
 import android.content.Context;
 import android.hardware.Camera;
@@ -21,6 +22,7 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
 
     private static final String TAG = "Android_Sensors_Driver::SensorCameraView";
     private String mPictureFileName;
+    private CameraPublisher mPictureListener;
 
     public SensorCameraView(Context context, int cameraId) {
         super(context, cameraId);
@@ -59,6 +61,17 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
         return mCamera.getParameters().getPreviewSize();
     }
 
+    public void cameraPictureResolutions() {
+        Log.i(TAG, "camera params:" + mCamera.getParameters().flatten());
+    }
+
+    public void setupParameters() {
+        Camera.Parameters params = mCamera.getParameters();
+        params.setPictureSize(3264, 1836);
+        params.setJpegQuality(85);
+        mCamera.setParameters(params);
+    }
+
     public void takePicture(final String fileName) {
         Log.i(TAG, "Taking picture");
         this.mPictureFileName = fileName;
@@ -84,9 +97,17 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
             fos.write(data);
             fos.close();
 
+            if (mPictureListener != null) {
+                mPictureListener.onPictureTaken(data);
+            }
+
         } catch (java.io.IOException e) {
             Log.e("PictureDemo", "Exception in photoCallback", e);
         }
 
+    }
+
+    public void setCameraPictureListener(CameraPublisher listener) {
+        mPictureListener = listener;
     }
 }
