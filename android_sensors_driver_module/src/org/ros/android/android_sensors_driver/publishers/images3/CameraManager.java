@@ -213,26 +213,32 @@ public class CameraManager  implements NodeMain {
         return new Runnable() {
             @Override
             public void run() {
+                int wait_next_call = 1000;
                 for (int i = 0; i < mViewList.size(); i++) {
                     ImageParams.ViewMode viewMode = cameras_viewmode.get(i);
                     if(viewMode == ImageParams.ViewMode.JPGEG_PICTURES) {
                         SensorCameraView mOpenCvCameraView = mViewList.get(i);
                         Log.i(TAG, "timer event event for i: "+i);
-                        mOpenCvCameraView.setupParameters();
-                        //mOpenCvCameraView.cameraPictureResolutions();
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-                        String currentDateandTime = sdf.format(new Date());
-                        String fileName = Environment.getExternalStorageDirectory().getPath() +
-                                "/sample_picture_" + currentDateandTime + ".jpg";
-                        mOpenCvCameraView.takePicture(fileName);
-                        Log.i(TAG, fileName + " saved");
-                        Toast toast = Toast.makeText(mainActivity, "Took picture, stored on sd card", Toast.LENGTH_SHORT);
-                        toast.show();
+                        if(!mOpenCvCameraView.hasActiveCamera()) {
+                            Log.i(TAG, "camera not active, skip");
+                        } else {
+                            mOpenCvCameraView.setupParameters();
+                            //mOpenCvCameraView.cameraPictureResolutions();
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+                            String currentDateandTime = sdf.format(new Date());
+                            String fileName = Environment.getExternalStorageDirectory().getPath() +
+                                    "/sample_picture_" + currentDateandTime + ".jpg";
+                            mOpenCvCameraView.takePicture(fileName);
+                            Log.i(TAG, fileName + " saved");
+                            Toast toast = Toast.makeText(mainActivity, "Took picture, stored on sd card", Toast.LENGTH_SHORT);
+                            toast.show();
+                            wait_next_call = 250;
+                        }   
                     }
                 }
                 // take picture again in x ms
                 Handler handler = new Handler();
-                handler.postDelayed(takePictureRunnable(), 100);
+                handler.postDelayed(takePictureRunnable(), wait_next_call);
             }
         };
     };

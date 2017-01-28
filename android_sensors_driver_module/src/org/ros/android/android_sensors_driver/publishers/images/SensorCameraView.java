@@ -107,6 +107,13 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
         }
     }
 
+    public boolean hasActiveCamera() {
+        if (mCamera != null) {
+            return true;
+        }
+        return false;
+    }
+
     public void setCameraPictureListener(CameraPublisher listener) {
         mPictureListener = listener;
     }
