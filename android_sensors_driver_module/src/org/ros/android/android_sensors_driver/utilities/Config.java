@@ -323,6 +323,7 @@ public class Config {
         }
         // Add the cameras we have to the view
         camera_list = (LinearLayout) mainActivity.findViewById(R.id.camera_list);
+        boolean first_camera = true;
         for (String entry : cameras) {
             // Camera checkbox
             CheckBox checkbox = new CheckBox(mainActivity);
@@ -334,6 +335,10 @@ public class Config {
             params_1.setMargins(5, 5, 5, 5);
             checkbox.setLayoutParams(params_1);
             checkbox.setTextAppearance(mainActivity, android.R.style.TextAppearance_Holo_Medium);
+            if(first_camera) {
+                checkbox.setChecked(true);
+                first_camera = false;
+            }
             // Camera view mode text
             TextView text_viewmode = new TextView(mainActivity);
             text_viewmode.setText("View Mode: ");
@@ -347,10 +352,10 @@ public class Config {
             // Camera view mode dropdown
             Spinner dropdown_viewmode = new Spinner(mainActivity);
             ImageParams.ViewMode[] items_viewmode = new ImageParams.ViewMode[] {
+                    ImageParams.ViewMode.JPGEG_PICTURES,
                     ImageParams.ViewMode.GRAY,
                     ImageParams.ViewMode.RGBA,
                     ImageParams.ViewMode.CANNY,
-                    ImageParams.ViewMode.JPGEG_PICTURES,
             };
             ArrayAdapter<ImageParams.ViewMode> adapter_viewmode =
                     new ArrayAdapter<ImageParams.ViewMode>(mainActivity, R.layout.custom_spinner, items_viewmode);
