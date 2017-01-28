@@ -4,7 +4,8 @@ public class ImageParams {
     public enum ViewMode {
         RGBA,
         GRAY,
-        CANNY;
+        CANNY,
+        JPGEG_PICTURES;
     }
 
     public enum TransportType {

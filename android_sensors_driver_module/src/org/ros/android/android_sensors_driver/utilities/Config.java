@@ -349,7 +349,8 @@ public class Config {
             ImageParams.ViewMode[] items_viewmode = new ImageParams.ViewMode[] {
                     ImageParams.ViewMode.GRAY,
                     ImageParams.ViewMode.RGBA,
-                    ImageParams.ViewMode.CANNY
+                    ImageParams.ViewMode.CANNY,
+                    ImageParams.ViewMode.JPGEG_PICTURES,
             };
             ArrayAdapter<ImageParams.ViewMode> adapter_viewmode =
                     new ArrayAdapter<ImageParams.ViewMode>(mainActivity, R.layout.custom_spinner, items_viewmode);

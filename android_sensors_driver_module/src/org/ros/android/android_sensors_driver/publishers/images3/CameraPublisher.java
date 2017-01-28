@@ -130,7 +130,9 @@ public class CameraPublisher implements NodeMain, CvCameraViewListener2 {
 
     @Override
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        if(true) {
+        if(viewMode == ImageParams.ViewMode.JPGEG_PICTURES) {
+            // do not publish stream, only pictures
+            // exit here
             return inputFrame.rgba();
         }
 
@@ -243,6 +245,9 @@ public class CameraPublisher implements NodeMain, CvCameraViewListener2 {
 
         // Lets try publishing our messages
         try {
+            //TODO: Missing Camera Info publish (but we do not now the resolution here without
+            // unpacking the jpeg
+
             //Compressed image
             CompressedImage image = imagePublisher.newMessage();
 

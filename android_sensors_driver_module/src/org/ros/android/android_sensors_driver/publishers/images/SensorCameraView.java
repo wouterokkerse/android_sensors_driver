@@ -24,6 +24,8 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
     private String mPictureFileName;
     private CameraPublisher mPictureListener;
 
+    private boolean safeToTakePricture = true;
+
     public SensorCameraView(Context context, int cameraId) {
         super(context, cameraId);
     }
@@ -73,7 +75,14 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
     }
 
     public void takePicture(final String fileName) {
+        if(! safeToTakePricture) {
+            Log.w(TAG, "not safe to take picture! Stop here");
+            return;
+        }
         Log.i(TAG, "Taking picture");
+        // block taking another picture
+        safeToTakePricture = false;
+
         this.mPictureFileName = fileName;
         // Postview and jpeg are sent in the same buffers if the queue is not empty when performing a capture.
         // Clear up buffers to avoid mCamera.takePicture to be stuck because of a memory issue
@@ -88,26 +97,23 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
         Log.i(TAG, "Saving a bitmap to file");
         // The camera preview was automatically stopped. Start it again.
         mCamera.startPreview();
+
+        //safeToTakePricture = true; set in callback
         mCamera.setPreviewCallback(this);
 
-        // Write the image in a file (in jpeg format)
-        try {
-            FileOutputStream fos = new FileOutputStream(mPictureFileName);
-
-            fos.write(data);
-            fos.close();
-
-            if (mPictureListener != null) {
-                mPictureListener.onPictureTaken(data);
-            }
-
-        } catch (java.io.IOException e) {
-            Log.e("PictureDemo", "Exception in photoCallback", e);
+        // call picture callback to e.g. publis on ROS
+        if (mPictureListener != null) {
+            mPictureListener.onPictureTaken(data);
         }
-
     }
 
     public void setCameraPictureListener(CameraPublisher listener) {
         mPictureListener = listener;
+    }
+
+    @Override
+    public void onPreviewFrame(byte[] frame, Camera arg1) {
+        super.onPreviewFrame(frame, arg1);
+        safeToTakePricture = true;
     }
 }
