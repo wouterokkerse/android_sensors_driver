@@ -6,12 +6,15 @@ If you are interested in recording data for a Camera2 API phone check out our ot
 Also note that on some phones the number of cameras that you can use is limited (and thus if you select more the app will fail).
 This is caused by a limit to the bandwidth over the camera buses on the physical phone hardware.
 
+## Additional Feature of this Fork
 
+* Publish high resolution jpeg pictures on ROS stream instead of a lower resolution video stream (default config)
+* Show information of number of published pictures
 
 ## How to compile and install?
 
 * Downlaod Android Studio and install https://developer.android.com/studio/index.html
-* run `git clone https://github.com/rpng/android_sensors_driver.git android_sensor_project`
+* run `git clone this_repo_url`
 * open android_sensor_porject as existing project in Android Studio
 * Press run button
 * Build will fail but suggest to install missing frameworks. Click on the link, install missing, and press run again.
