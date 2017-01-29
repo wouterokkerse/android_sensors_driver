@@ -10,10 +10,9 @@
     android:gravity="center">
 
     <TextView
-        android:text="TextView"
+        android:text="ImageCount: 0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView2"
-        tools:text="ImageCount: 0" />
+        android:id="@+id/textView2" />
 
 </LinearLayout>
