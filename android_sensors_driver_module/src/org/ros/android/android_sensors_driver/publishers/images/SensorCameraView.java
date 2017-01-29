@@ -26,6 +26,8 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
 
     private boolean safeToTakePricture = true;
 
+    private int imageCount = 0;
+
     public SensorCameraView(Context context, int cameraId) {
         super(context, cameraId);
     }
@@ -104,6 +106,7 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
         // call picture callback to e.g. publis on ROS
         if (mPictureListener != null) {
             mPictureListener.onPictureTaken(data);
+            imageCount += 1;
         }
     }
 
@@ -112,6 +115,10 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
             return true;
         }
         return false;
+    }
+
+    public int getImageCount() {
+        return imageCount;
     }
 
     public void setCameraPictureListener(CameraPublisher listener) {

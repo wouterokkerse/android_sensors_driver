@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ViewFlipper
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/view_main"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
-    android:orientation="horizontal"
     android:gravity="center">
-</ViewFlipper>
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView2"
+        tools:text="ImageCount: 0" />
+
+</LinearLayout>

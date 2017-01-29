@@ -49,7 +49,7 @@ public class CameraManager  implements NodeMain {
     private MainActivity mainActivity;
     private ConnectedNode node = null;
 
-    ViewFlipper layout;
+    LinearLayout layout;
     LinearLayout.LayoutParams params;
 
     public CameraManager(MainActivity mainAct, ArrayList<Integer> camera_ids, String robotName, ArrayList<ImageParams.ViewMode> cameras_viewmode, ArrayList<ImageParams.CompressionLevel> cameras_compression) {
@@ -59,7 +59,7 @@ public class CameraManager  implements NodeMain {
         this.cameras_viewmode = cameras_viewmode;
         this.cameras_compression = cameras_compression;
         // Layout variables
-        layout = (ViewFlipper) mainActivity.findViewById(R.id.view_main);
+        layout = (LinearLayout) mainActivity.findViewById(R.id.view_main);
         params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
     }
 
@@ -233,7 +233,10 @@ public class CameraManager  implements NodeMain {
                             Toast toast = Toast.makeText(mainActivity, "Took picture, stored on sd card", Toast.LENGTH_SHORT);
                             toast.show();
                             wait_next_call = 250;
-                        }   
+
+                            TextView infoLabel = (TextView) mainActivity.findViewById(R.id.textView2);
+                            infoLabel.setText(String.format("ImageCount: %1$d", mOpenCvCameraView.getImageCount()));
+                        }
                     }
                 }
                 // take picture again in x ms
