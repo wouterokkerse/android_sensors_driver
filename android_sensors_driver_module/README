@@ -23,4 +23,4 @@ go to install folder on terminal and type:
 Once your environment is set, do the following steps:
  1) cd ~/rosjava; catkin_make
 
-For the whole process of building, packing, installing into the phone, use the buildAll.sh script.
+For tllhe whole process of building, packing, instaing into the phone, use the buildAll.sh script.

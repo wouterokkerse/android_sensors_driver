@@ -11,6 +11,9 @@ import android.widget.StackView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
+import android.util.Log;
+import android.os.Environment;
+import android.os.Handler;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -20,16 +23,22 @@ import org.opencv.android.OpenCVLoader;
 import org.ros.android.android_sensors_driver.MainActivity;
 import org.ros.android.android_sensors_driver.R;
 import org.ros.android.android_sensors_driver.publishers.images2.ImageParams;
+import org.ros.android.android_sensors_driver.publishers.images.SensorCameraView;
 import org.ros.namespace.GraphName;
 import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
 import org.ros.node.NodeMain;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CameraManager  implements NodeMain {
 
-    private ArrayList<CameraBridgeViewBase> mViewList;
+    private static final String TAG = "Android_Sensors_Driver::CameraManager";
+    private ArrayList<SensorCameraView> mViewList;
     private ArrayList<CameraPublisher> mNodes;
     private ArrayList<Integer> camera_ids;
     private ArrayList<ImageParams.ViewMode> cameras_viewmode;
@@ -40,7 +49,7 @@ public class CameraManager  implements NodeMain {
     private MainActivity mainActivity;
     private ConnectedNode node = null;
 
-    ViewFlipper layout;
+    LinearLayout layout;
     LinearLayout.LayoutParams params;
 
     public CameraManager(MainActivity mainAct, ArrayList<Integer> camera_ids, String robotName, ArrayList<ImageParams.ViewMode> cameras_viewmode, ArrayList<ImageParams.CompressionLevel> cameras_compression) {
@@ -50,7 +59,7 @@ public class CameraManager  implements NodeMain {
         this.cameras_viewmode = cameras_viewmode;
         this.cameras_compression = cameras_compression;
         // Layout variables
-        layout = (ViewFlipper) mainActivity.findViewById(R.id.view_main);
+        layout = (LinearLayout) mainActivity.findViewById(R.id.view_main);
         params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
     }
 
@@ -63,7 +72,7 @@ public class CameraManager  implements NodeMain {
     @Override
     public void onStart(ConnectedNode connectedNode) {
         this.node = connectedNode;
-        this.mViewList = new ArrayList<CameraBridgeViewBase>();
+        this.mViewList = new ArrayList<SensorCameraView>();
         this.mNodes = new ArrayList<CameraPublisher>();
         // See if we can load opencv
         try {
@@ -139,15 +148,17 @@ public class CameraManager  implements NodeMain {
             // Create and set views
             for(int i=0; i<camera_ids.size(); i++) {
                 // Create a new camera node
-                JavaCameraView mOpenCvCameraView = new JavaCameraView(mainActivity, camera_ids.get(i));
+                SensorCameraView mOpenCvCameraView = new SensorCameraView(mainActivity, camera_ids.get(i));
                 CameraPublisher pub = new CameraPublisher(camera_ids.get(i), robotName, cameras_viewmode.get(i), cameras_compression.get(i));
                 mOpenCvCameraView.enableView();
                 mOpenCvCameraView.enableFpsMeter();
                 mOpenCvCameraView.setCvCameraViewListener(pub);
+                mOpenCvCameraView.setCameraPictureListener(pub);
                 mViewList.add(mOpenCvCameraView);
                 mNodes.add(pub);
                 // Start the node
                 pub.onStart(node);
+
             }
             // Add the camera views
             mainActivity.runOnUiThread(new Runnable() {
@@ -158,6 +169,74 @@ public class CameraManager  implements NodeMain {
                     }
                 }
             });
+
+            /*
+            // timer to take picutres
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    mainActivity.runOnUiThread(takePictureRunnable());
+                }
+            }, 5000, 5000);*/
+
+            /*
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Handler handler = new Handler();
+                    handler.postDelayed(takePictureRunnable()
+                            , 5000); //time in millis
+                }
+            });
+            */
+            //mainActivity.runOnUiThread(takePictureRunnable());
+
+            // then continuously take pictures
+            Handler handler2 = new Handler();
+            handler2.postDelayed(takePictureRunnable(), 3000);
+            /*
+            Handler handler = new Handler();
+            handler.postDelayed(takePictureRunnable());
+            }, 5000); //time in millis
+
+            Handler mHandler = new Handler(Looper.getMainLooper());
+            mHandler.postDelayed(takePictureRunnable(), 5000);
+            */
+
         }
+    };
+
+    private Runnable takePictureRunnable() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                int wait_next_call = 1500;
+                for (int i = 0; i < mViewList.size(); i++) {
+                    ImageParams.ViewMode viewMode = cameras_viewmode.get(i);
+                    if(viewMode == ImageParams.ViewMode.JPGEG_PICTURES) {
+                        SensorCameraView mOpenCvCameraView = mViewList.get(i);
+                        Log.i(TAG, "takePicutre timer event event for camera: "+i);
+                        if(!mOpenCvCameraView.hasActiveCamera()) {
+                            Log.i(TAG, "camera not active, skip");
+                        } else {
+                            mOpenCvCameraView.setupParameters();
+                            mOpenCvCameraView.takePicture("");
+
+                            // assume successfull, dont wait too long
+                            wait_next_call = 100;
+
+                            TextView infoLabel = (TextView) mainActivity.findViewById(R.id.textView2);
+                            infoLabel.setText(String.format("ImageCount: %1$d", mOpenCvCameraView.getImageCount()));
+                        }
+                    }
+                }
+                // take picture again in x ms
+                Handler handler = new Handler();
+                handler.postDelayed(takePictureRunnable(), wait_next_call);
+            }
+        };
     };
 }

@@ -130,6 +130,11 @@ public class CameraPublisher implements NodeMain, CvCameraViewListener2 {
 
     @Override
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
+        if(viewMode == ImageParams.ViewMode.JPGEG_PICTURES) {
+            // do not publish stream, only pictures
+            // exit here
+            return inputFrame.rgba();
+        }
 
         Mat         frame       = null;
         Mat         frameToSend = new Mat();
@@ -205,7 +210,7 @@ public class CameraPublisher implements NodeMain, CvCameraViewListener2 {
                     // Proccess per type
                     switch (viewMode) {
                         case RGBA:
-                            cvImage = new CvImage(rawImage.getHeader(), ImageEncodings.RGB8, frameToSend);
+                            cvImage = new CvImage(rawImage.getHeader(), ImageEncodings.BGR8, frameToSend);
                             break;
                         case GRAY:
                         case CANNY:
@@ -233,5 +238,31 @@ public class CameraPublisher implements NodeMain, CvCameraViewListener2 {
             }
         }
         return frame;
+    }
+
+    public void onPictureTaken(byte[] data) {
+        ChannelBufferOutputStream stream = new ChannelBufferOutputStream(MessageBuffers.dynamicBuffer());
+
+        // Lets try publishing our messages
+        try {
+            //TODO: Missing Camera Info publish (but we do not now the resolution here without
+            // unpacking the jpeg
+
+            //Compressed image
+            CompressedImage image = imagePublisher.newMessage();
+
+            Time currentTime = node.getCurrentTime();
+            image.getHeader().setStamp(currentTime);
+            image.getHeader().setFrameId("camera");
+
+            image.setFormat("jpeg");
+            stream.write(data);
+            image.setData(stream.buffer().copy());
+            imagePublisher.publish(image);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }
