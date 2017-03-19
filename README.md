@@ -32,3 +32,14 @@ This is caused by a limit to the bandwidth over the camera buses on the physical
 ![Screenshot 1](android_sensors_driver_module/screenshots/Screenshot_2016-01-11-11-53-21.png?raw=true)
 ![Screenshot 1](android_sensors_driver_module/screenshots/Screenshot_2016-01-11-11-48-04.png?raw=true)
 
+
+## Troubleshooting
+
+Message on uploading to phone:
+Error:Execution failed for task ':android_sensors_driver_module:zipalignDebug'.
+> A problem occurred starting process 'command '/opt/android/build-tools/21.1.2/zipalign''
+build-tools/21.1.2/zipalign: No such file or directory
+
+
+Solution:
+sudo apt-get install libc6:i386 libstdc++6:i386 zlib1g:i386
