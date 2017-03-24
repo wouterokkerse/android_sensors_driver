@@ -15,6 +15,7 @@ import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
+import android.hardware.Camera.Parameters;
 import android.util.AttributeSet;
 import android.util.Log;
 
@@ -73,6 +74,7 @@ public class SensorCameraView extends JavaCameraView implements PictureCallback 
         Camera.Parameters params = mCamera.getParameters();
         params.setPictureSize(3264, 1836);
         params.setJpegQuality(85);
+        params.setFocusMode(Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         mCamera.setParameters(params);
     }
 
