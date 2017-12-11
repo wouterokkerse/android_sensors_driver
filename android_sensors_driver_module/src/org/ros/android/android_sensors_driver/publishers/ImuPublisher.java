@@ -48,7 +48,9 @@ import java.util.List;
 
 import sensor_msgs.Imu;
 
-/**`
+/**
+ * `
+ *
  * @author chadrockey@gmail.com (Chad Rockey)
  * @author axelfurlan@gmail.com (Axel Furlan)
  * @author tal.regev@gmail.com  (Tal Regev)
@@ -77,7 +79,7 @@ public class ImuPublisher implements NodeMain {
 
     public void onStart(ConnectedNode node) {
         try {
-            this.publisher = node.newPublisher("/android/" + robotName + "/imu", "sensor_msgs/Imu");
+            this.publisher = node.newPublisher("android/" + robotName + "/imu", "sensor_msgs/Imu");
             // 	Determine if we have the various needed sensors
             boolean hasAccel = false;
             boolean hasGyro = false;
@@ -200,14 +202,14 @@ public class ImuPublisher implements NodeMain {
                 this.imu.getLinearAcceleration().setY(event.values[1]);
                 this.imu.getLinearAcceleration().setZ(event.values[2]);
 
-                double[] tmpCov = {0, 0, 0, 0, 0, 0, 0, 0, 0};// TODO Make Parameter
+                double[] tmpCov = {0.0096, 0, 0, 0, 0.0096, 0, 0, 0, 0.0096};// TODO Make Parameter
                 this.imu.setLinearAccelerationCovariance(tmpCov);
                 this.accelTime = event.timestamp;
             } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
                 this.imu.getAngularVelocity().setX(event.values[0]);
                 this.imu.getAngularVelocity().setY(event.values[1]);
                 this.imu.getAngularVelocity().setZ(event.values[2]);
-                double[] tmpCov = {0, 0, 0, 0, 0, 0, 0, 0, 0};// TODO Make Parameter
+                double[] tmpCov = {0.000144, 0, 0, 0, 0.000144, 0, 0, 0, 0.000144};// TODO Make Parameter
                 this.imu.setAngularVelocityCovariance(tmpCov);
                 this.gyroTime = event.timestamp;
             } else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
@@ -217,7 +219,7 @@ public class ImuPublisher implements NodeMain {
                 this.imu.getOrientation().setX(quaternion[1]);
                 this.imu.getOrientation().setY(quaternion[2]);
                 this.imu.getOrientation().setZ(quaternion[3]);
-                double[] tmpCov = {0, 0, 0, 0, 0, 0, 0, 0, 0};// TODO Make Parameter
+                double[] tmpCov = {2.89e-8, 0, 0, 0, 2.89e-8, 0, 0, 0, 2.89e-8};// TODO Make Parameter
                 this.imu.setOrientationCovariance(tmpCov);
                 this.quatTime = event.timestamp;
             }
@@ -226,10 +228,8 @@ public class ImuPublisher implements NodeMain {
             if ((this.accelTime != 0 || !this.hasAccel) &&
                     (this.gyroTime != 0 || !this.hasGyro) &&
                     (this.quatTime != 0 || !this.hasQuat)) {
-                // Convert event.timestamp (nanoseconds uptime) into system time, use that as the header stamp
-                long time_delta_millis = System.currentTimeMillis() - SystemClock.uptimeMillis();
-                this.imu.getHeader().setStamp(Time.fromMillis(time_delta_millis + event.timestamp / 1000000));
-                this.imu.getHeader().setFrameId("/android/imu");// TODO Make parameter
+                this.imu.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
+                this.imu.getHeader().setFrameId("imu_link");// TODO Make parameter
 
                 publisher.publish(this.imu);
 
