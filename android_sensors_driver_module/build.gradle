@@ -18,10 +18,10 @@ apply plugin: "ros-android"
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile 'org.ros.rosjava_core:rosjava:[0.2.1)'
-    compile 'org.ros.android_core:android_honeycomb_mr2:0.1.+'
-    compile project(':opencv3')
-    compile project(':cv_bridge')
+    implementation 'org.ros.rosjava_core:rosjava:[0.2.1)'
+    implementation 'org.ros.android_core:android_honeycomb_mr2:0.1.+'
+    implementation project(':opencv3')
+    implementation project(':cv_bridge')
 }
 
 
